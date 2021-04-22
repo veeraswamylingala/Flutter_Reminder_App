@@ -24,7 +24,7 @@ class _EmployeeListState extends State<EmployeeList> {
     return Scaffold(
       appBar: AppBar(title: Text("Employee List"),),
       body:   StreamBuilder(
-    stream: Firestore.instance.collection("EmployeeDetails").snapshots(),
+    stream: FirebaseFirestore.instance.collection("EmployeeDetails").snapshots(),
     builder: (context, snapshot) {
 
       switch (snapshot.connectionState) {

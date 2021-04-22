@@ -26,7 +26,7 @@ class _GalleryState extends State<Gallery> {
       appBar: AppBar(title: Text("Gallery"),),
       body: Container(
         child:  StreamBuilder(
-            stream: Firestore.instance.collection("EmployeeDetails").snapshots(),
+            stream: FirebaseFirestore.instance.collection("EmployeeDetails").snapshots(),
             builder: (context, snapshot) {
 
               switch (snapshot.connectionState) {

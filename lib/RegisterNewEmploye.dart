@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +25,7 @@ class _RegisterEmployeState extends State<RegisterEmploye> {
 
   final _pageKey = GlobalKey<ScaffoldState>();
 
-  final databaseReference = Firestore.instance;
+  final databaseReference =   FirebaseFirestore.instance;
 
   TextEditingController _name = TextEditingController();
   TextEditingController _email = TextEditingController();

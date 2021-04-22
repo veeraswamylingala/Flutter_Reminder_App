@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'package:custom_switch/custom_switch.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:unicalemployee/AddReminder.dart';
 import 'package:unicalemployee/ChatScreen.dart';
 import 'package:unicalemployee/EmployeeList.dart';
 import 'package:unicalemployee/Gallery.dart';
@@ -12,10 +15,14 @@ import 'package:unicalemployee/Provider/EmailPasswordAuth.dart';
 import 'package:unicalemployee/Provider/reminderManager.dart';
 import 'package:unicalemployee/RegisterNewEmploye.dart';
 import 'AddTask.dart';
+import 'Database_Helper/database_class.dart';
 import 'Login.dart';
 import 'Model/taskModel.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'Provider/googleSignin.dart';
 import 'Provider/taskManager.dart';
+import 'main.dart';
 import 'utils.dart';
 import 'package:intl/intl.dart';
 
@@ -26,8 +33,8 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
 
+class _HomeState extends State<Home> {
   int _pageIndex = 0;
   PageController _pageController;
 
@@ -38,10 +45,13 @@ class _HomeState extends State<Home> {
     Screen4(),
   ];
 
+  final dbHelper = DatabaseHelper.instance;
   @override
-  void initState() {
+  Future<void> initState()  {
     super.initState();
     _pageController = PageController(initialPage: _pageIndex);
+    // reference to our single class that manages the database
+    Provider.of<ReminderManager>(context, listen: false).query();
   }
 
   @override
@@ -93,96 +103,6 @@ class _HomeState extends State<Home> {
       );
   }
 
-  // Widget drawer(){
-  //   return  Drawer(
-  //     child: ListView(
-  //       padding: EdgeInsets.zero,
-  //       children: <Widget>[
-  //         widget.googleSignin ?
-  //         Consumer<GoogleSigninAuth>(
-  //           builder:(context,myUser,child) =>DrawerHeader(
-  //             child: UserAccountsDrawerHeader(accountName: Text(myUser.googleSignIn.currentUser.displayName),
-  //               accountEmail: Text(myUser.googleSignIn.currentUser.email),
-  //               currentAccountPicture: Image.network(myUser.googleSignIn.currentUser.photoUrl),
-  //             ),
-  //         ) )
-  //       :
-  //         Consumer<EmailPasswordAuth>(
-  //           builder:(context,myuser,child) =>DrawerHeader(
-  //             child: UserAccountsDrawerHeader(accountName: Text(myuser.authFirebase.currentUser.displayName.toString()),
-  //                 accountEmail: Text(myuser.authFirebase.currentUser.email.toString()),
-  //                 currentAccountPicture: Image.network(myuser.authFirebase.currentUser.photoURL.toString()),
-  //           ),
-  //         ) ),
-  //
-  //
-  //         ListTile(
-  //           title: Text('Employes List'),
-  //           leading: Icon( Icons.group),
-  //           onTap: (){
-  //             Navigator.pop(context);
-  //             Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(builder: (context) => EmployeeList()));
-  //           },
-  //         ),
-  //         Divider(),
-  //         ListTile(
-  //           title: Text('Register new Employee'),
-  //           leading: Icon( Icons.category),
-  //           onTap: (){
-  //             Navigator.pop(context);
-  //             Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(builder: (context) => RegisterEmploye()));
-  //           },
-  //         ),
-  //         Divider(),
-  //         ListTile(
-  //           title: Text('About Unical'),
-  //           leading: Icon( Icons.money),
-  //           onTap: (){
-  //             Navigator.pop(context);
-  //             // Navigator.push(
-  //             //     context,
-  //             //     MaterialPageRoute(builder: (context) => SubCategoryScreen(index: 1,slug: "",)));
-  //           },
-  //         ),
-  //         ListTile(
-  //           title: Text('Contact Details'),
-  //           leading: Icon( Icons.money),
-  //           onTap: (){
-  //             Navigator.pop(context);
-  //             // Navigator.push(
-  //             //     context,
-  //             //     MaterialPageRoute(builder: (context) => SubCategoryScreen(index: 1,slug: "",)));
-  //           },
-  //         ),
-  //         ListTile(
-  //           title: Text('Gallary'),
-  //           leading: Icon( Icons.money),
-  //           onTap: (){
-  //             Navigator.pop(context);
-  //             Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(builder: (context) => Gallery()));
-  //           },
-  //         ),
-  //         ListTile(
-  //           title: Text('Careers'),
-  //           leading: Icon( Icons.money),
-  //           onTap: (){
-  //             Navigator.pop(context);
-  //             // Navigator.push(
-  //             //     context,
-  //             //     MaterialPageRoute(builder: (context) => SubCategoryScreen(index: 1,slug: "",)));
-  //           },
-  //         ),
-  //         Divider(),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   void onPageChanged(int page) {
     setState(() {
@@ -219,7 +139,6 @@ class Screen1 extends StatelessWidget {
       child: Container(
         //height: MediaQuery.of(context).size.height -50,
         padding:EdgeInsets.fromLTRB(10, 50, 10, 0),
-
         child: Column(
           children: [
             //First Row---------------------------
@@ -235,12 +154,13 @@ class Screen1 extends StatelessWidget {
                Row(
                  children: [
                    IconButton(icon: Icon(Icons.search,color: Colors.grey,size: 30,), onPressed: (){}),
-                   IconButton(icon: Icon(Icons.notifications,color: Colors.grey,size: 30,), onPressed: (){}),
+                   // IconButton(icon: Icon(Icons.notifications,color: Colors.grey,size: 30,), onPressed: (){}),
                  ],
                )
              ],
            ),
             SizedBox(height: 20,),
+            Divider(),
             //Second Row---------------------------------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -259,29 +179,30 @@ class Screen1 extends StatelessWidget {
                     child: IconButton(icon: Icon(Icons.trending_down_sharp,size: 30,), onPressed: (){}))
               ],
             ),
-            SizedBox(height: 35,),
+            Divider(),
+            SizedBox(height: 0,),
             //Third Row---------------------------------------------------------
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("\u0024 12,939.25",style: utils().getProgressHeaderStyle(),),
-                    SizedBox(height: 12,),
-                    Text("Checking Account Balance",style: utils().getProgressBodyStyle(),),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("\u0024 120,939.25",style: utils().getProgressHeaderStyle(),),
-                    SizedBox(height: 12,),
-                    Text("Saving Account Balance",style: utils().getProgressBodyStyle(),),
-                  ],
-                ),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         Text("\u0024 12,939.25",style: utils().getProgressHeaderStyle(),),
+            //         SizedBox(height: 12,),
+            //         Text("Checking Account Balance",style: utils().getProgressBodyStyle(),),
+            //       ],
+            //     ),
+            //     Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         Text("\u0024 120,939.25",style: utils().getProgressHeaderStyle(),),
+            //         SizedBox(height: 12,),
+            //         Text("Saving Account Balance",style: utils().getProgressBodyStyle(),),
+            //       ],
+            //     ),
+            //   ],
+            // ),
             //SizedBox(height: 35,),
             Consumer<TaskManager>(
               builder: (context,myTasks,child) =>
@@ -290,6 +211,8 @@ class Screen1 extends StatelessWidget {
                   shrinkWrap: true,
                   crossAxisCount: 2,
                   childAspectRatio: 1.0,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
                   children: List.generate(myTasks.taskList.length+1, (index) {
                     return index !=myTasks.taskList.length ?  GridTile(
                       child:  Container(
@@ -345,13 +268,22 @@ class Screen1 extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20,),
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+                color: Colors.orangeAccent,
+              image: DecorationImage(
+                image: AssetImage("images/HappyBunchDesk.png"),
+                fit: BoxFit.fitHeight,
+                alignment: Alignment.bottomCenter,
+              ),),)
+         
           ],
         )
       ),
     );
   }
 }
-
 
 
 //Screen2--------------------------------------------------------------------------------------
@@ -365,178 +297,83 @@ class Screen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //Bottom Sheet----------------------------------------------------------------------------
-    modalBottomSheetMenu(){
-      showModalBottomSheet(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30),bottom :Radius.circular(0))
-          ),
-          isScrollControlled: true ,
-          context: context,
-          builder: (builder){
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Container(
-                   // height: MediaQuery.of(context).size.height-200,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(vertical: 0,horizontal: 15),
-                            color: Colors.blue.shade300,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [Text("Add Reminder",style: utils().getProgressFooterStyle()),
-                                  IconButton(icon: Icon(Icons.close_outlined,size: 30,), onPressed: (){
-                            Navigator.pop(context);
-                          })
-                                ],)),
-                             StatefulBuilder(
-                              builder: (BuildContext context, StateSetter stateSetter) {
-                              return  SizedBox(
-                            height: 200,
-                            child: CupertinoDatePicker(
-                                minimumDate: today,
-                                minuteInterval: 1,
-                                use24hFormat: false,
-                                mode: CupertinoDatePickerMode.dateAndTime,
-                                onDateTimeChanged: (DateTime dateTime) {
-                                  String formattedDate = DateFormat('yyyy-MM-dd-h:mma').format(dateTime);
-                                  stateSetter(() => newReminderTime = formattedDate);
-                                  newReminderTime = formattedDate;
-                                  //beginTimeController.text = formattedDate ;
-                                }
-                            ),
-                          ); } ),
-                          Container(
-                            padding: EdgeInsets.fromLTRB(10, 0, 10, 7),
-                            child: TextFormField(
-                               controller: reminderLabel,
-                              decoration: InputDecoration(
-                                  labelText: "Label",
-                                  border: OutlineInputBorder()
-                              ),
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return "Please Enter Label";
-                                } else {
-                                  return null;
-                                }
-                              },
-                              keyboardType: TextInputType.name,
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ), Container(
-                            width: MediaQuery.of(context).size.width,
-                            padding: EdgeInsets.fromLTRB(10, 0, 10, 7),
-                            child: FlatButton(
-                              onPressed: (){
-                                if(_formKey.currentState.validate())
-                                {
-                                  if(newReminderTime!=null)
-                                  {
-                                    DateTime  reminderTime =  DateFormat("yyyy-MM-dd-h:mma").parse(newReminderTime);
-
-                                    Reminder newReminder =  Reminder(reminderLabel.text,reminderTime);
-                                    Provider.of<ReminderManager>(context,listen: false).addReminder(newReminder);
-
-                                    reminderLabel.clear();
-                                    newReminder = null ;
-                                    Navigator.pop(context);
-                                    print(" SUCCESS");
-                                  }else
-                                  {
-                                    print("Time Not Selected");
-                                  }
-
-                                }
-                              },
-                              color: Colors.blue.shade300,
-                              child: Text("Save Reminder",style: TextStyle(color: Colors.white,fontWeight:FontWeight.bold,fontSize: 16),),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                ),
-              ),
-            );
-          } ); }
-
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text("Reminder",style: utils().getProgressFooterStyle()),
+        centerTitle: false,
+        actions: [
+        ],
+      ),
       floatingActionButton: CircleAvatar(
         radius: 30,
         backgroundColor:Colors.orange.shade400,
         child: IconButton(icon: Icon(Icons.add,size: 30,color: Colors.white,),onPressed: (){
          // Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
-          modalBottomSheetMenu();
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddReminder()));
         },),
       ),
       body: SafeArea(
         child: Container(
-          child:Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                  height: 60,
-                 // color: Colors.blue.shade300,
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  alignment: Alignment.centerLeft,
-                  child: Text("Reminder",style: utils().getProgressFooterStyle())),
-              Divider(height: 0,color: Colors.black,),
-              SizedBox(height: 20,),
-              Container(
-                height: 400,
-                child: Consumer<ReminderManager>(
-                  builder: (context,myReminderList,child) {
-                    return ListView.builder(
-                        itemCount: myReminderList.reminderList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Card(
-                            elevation: 5.0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                              colors: utils.day,
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                          )  ,
-                          boxShadow: [
-                          // BoxShadow(
-                          // color: utils.fire.last.withOpacity(0.4),
-                          // blurRadius: 8,
-                          // spreadRadius: 2,
-                          // offset: Offset(4, 4),
-                          // ),
-                          ],
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
+          height: MediaQuery.of(context).size.height,
+          child: Consumer<ReminderManager>(
+            builder: (context,myReminderList,child) {
+              return myReminderList.reminderList.length > 0  ? ListView.builder(
+                  itemCount: myReminderList.reminderList.length,
+                  itemBuilder: (BuildContext context, int index) {
 
-                          ),
-                              child: ListTile(
-                                  leading: Icon(Icons.alarm),
-                                 // CustomSwitch(
-                                 //   activeColor: Colors.pinkAccent,
-                                 //   value: status,
-                                 //   onChanged: (value) {
-                                 //     print("VALUE : $value");
-                                 //     setState(() {
-                                 //       status = value;
-                                 //     });
-                                 //   },
-                                 // ),
+                    var tempDateTime   =  DateFormat('yyyy-MM-dd – hh:mm:ss').parse(myReminderList.reminderList[index].reminderTime);
 
-                                  title: Text(myReminderList.reminderList[index].reminderTime.toString()),
-                                subtitle: Text(myReminderList.reminderList[index].reminderLabel),
-                            ),
-                          ),);
-                        }
-                    );
+                    var tempStringDateTime = DateFormat('hh:mm: a').format(tempDateTime);
+
+                    return Card(
+                      elevation: 5.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                        colors: utils.day,
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                    )  ,
+                    boxShadow: [
+                    // BoxShadow(
+                    // color: utils.fire.last.withOpacity(0.4),
+                    // blurRadius: 8,
+                    // spreadRadius: 2,
+                    // offset: Offset(4, 4),
+                    // ),
+                    ],
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+
+                    ),
+                        child: ListTile(
+                            leading: Icon(Icons.alarm),
+                          trailing:IconButton(icon: Icon(Icons.delete),onPressed: (){
+                            Provider.of<ReminderManager>(context,listen: false).deleterSingleReminder(index);
+                          },),
+
+                          // CustomSwitch(
+                          //    activeColor: Colors.green,
+                          //    value: status,
+                          //    onChanged: (value) {
+                          //      print("VALUE : $value");
+                          //    //  setState(() {
+                          //        status = value;
+                          //      //});
+                          //    },
+                          //  ),
+
+                            title: Text(tempStringDateTime),
+                          subtitle: Text(myReminderList.reminderList[index].reminderLabel),
+                      ),
+                    ),);
                   }
-                ),
-              ),
-            ],
+              ) : Container(
+                height: 400,
+                width: 350,
+                child:Image.asset("images/13269.jpg"),
+              ) ;
+            }
           ),
         ),
       ),
@@ -678,7 +515,6 @@ class Screen4 extends StatelessWidget {
            ],
          ),
        ),
-
 
        Container(
          child: Column(

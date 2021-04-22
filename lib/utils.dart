@@ -9,6 +9,8 @@ class utils{
   // DateTime now = DateTime.now();
   // String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
 
+  //SplashScreen Background Color
+  static  Color splashBackgroundColor  = Colors.orange.shade300 ;
 
   //Gradient Colors-----
   static List<Color> sky = [Color(0xFF6448FE), Color(0xFF5FC6FF)];

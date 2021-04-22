@@ -42,7 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: new Material(
                   color: Colors.grey.shade200,
                   child: StreamBuilder(
-                      stream: Firestore.instance.collection("ChatRoom").orderBy('timeStamp',descending: false).snapshots(),
+                      stream: FirebaseFirestore.instance.collection("ChatRoom").orderBy('timeStamp',descending: false).snapshots(),
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.none:

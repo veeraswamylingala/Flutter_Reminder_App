@@ -1,7 +1,7 @@
 
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,15 +22,15 @@ class FireStoreOperations with  ChangeNotifier{
   Future<bool> uploadFile(String name,String email,String empId,File userProfilePic) async {
 
     //Firstly Uploading Profile pic to Firebase Storage --------------------------------------------
-    StorageReference storageReference = FirebaseStorage.instance
+    firebase_storage.Reference  storageReference = firebase_storage.FirebaseStorage.instance
         .ref()
         .child('ProfilePhotos/${Path.basename(userProfilePic.path)}');
 
-    StorageUploadTask uploadTask = storageReference.putFile(userProfilePic);
+    firebase_storage.UploadTask uploadTask = storageReference.putFile(userProfilePic);
 
-    await uploadTask.isInProgress;
+    await uploadTask.asStream();
     CircularProgressIndicator();
-    await uploadTask.onComplete;
+    await uploadTask.whenComplete(() => null);
     print('Profile Pic Uploaded Successfully');
     //Once Uploading Profile Pic Finished we are using path of Profile Pic and Adding other Details to the FireStore------------
     storageReference.getDownloadURL().then((fileURL) {
@@ -38,7 +38,7 @@ class FireStoreOperations with  ChangeNotifier{
         print(fileURL.toString());
         profilePic = fileURL;
         loading = false ;
-        CollectionReference colRef = Firestore.instance.collection("EmployeeDetails");
+        CollectionReference colRef = FirebaseFirestore.instance.collection("EmployeeDetails");
         colRef.add(({
           'Name' : name,
           'Email' : email,
@@ -64,14 +64,14 @@ class FireStoreOperations with  ChangeNotifier{
     //Firstly Uploading Profile pic to Firebase Storage --------------------------------------------
     if(pic !=null)
       {
-        StorageReference storageReference = FirebaseStorage.instance
+        firebase_storage.Reference  storageReference = firebase_storage.FirebaseStorage.instance
             .ref()
             .child('chatMedia/${Path.basename(pic.path)}');
-        StorageUploadTask uploadTask = storageReference.putFile(pic);
+        firebase_storage.UploadTask  uploadTask = storageReference.putFile(pic);
 
-        await uploadTask.isInProgress;
+        await uploadTask.asStream();
         CircularProgressIndicator();
-        await uploadTask.onComplete;
+        await uploadTask.whenComplete(() => null);
         print('Profile Pic Uploaded Successfully');
 
         storageReference.getDownloadURL().then((fileURL) {
@@ -83,7 +83,7 @@ class FireStoreOperations with  ChangeNotifier{
 
 
     //Once Uploading Profile Pic Finished we are using path of Profile Pic and Adding other Details to the FireStore------------
-      CollectionReference colRef = Firestore.instance.collection("ChatRoom");
+      CollectionReference colRef = FirebaseFirestore.instance.collection("ChatRoom");
       colRef.add(({
         'imageUrl' : pic !=null ? pics : "",
         'msg' : msg,

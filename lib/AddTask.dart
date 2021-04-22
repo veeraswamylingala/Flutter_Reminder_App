@@ -13,11 +13,9 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
-
   bool checkedValue = false;
   bool tap  = false;
   var today= new DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-
 
   TextEditingController taskTitle = TextEditingController();
   TextEditingController taskDescription = TextEditingController();
@@ -119,21 +117,26 @@ class _AddTaskState extends State<AddTask> {
                       color: Colors.orange.shade200,
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(vertical: 0,horizontal: 10),
-                      child:Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Add Task",style: utils().getProgressFooterStyle(),),
-                          IconButton(icon: Icon(Icons.close_outlined),onPressed: (){
-
-
-                            beginTimeController.clear();
-                            endTimeController.clear();
-                            Navigator.pop(context);
-                          },),
-                        ],
+                      child:Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 60,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                         Padding(
+                           padding: const EdgeInsets.fromLTRB(10, 10, 0, 0),
+                           child: Text("Add Task",style: utils().getProgressFooterStyle(),),
+                         ),
+                            IconButton(icon: Icon(Icons.close_outlined),onPressed: (){
+                              beginTimeController.clear();
+                              endTimeController.clear();
+                              Navigator.pop(context);
+                            },),
+                          ],
+                        ),
                       )
                   ),
-                  //  Divider(color: Colors.grey,),
+                  Divider(height: 1,thickness: 1,),
                   SizedBox(height: 10,),
                   Expanded(child: Form(
                     key: _formKey,

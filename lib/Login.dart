@@ -33,11 +33,8 @@ class _LoginState extends State<Login> {
   final _mobileFormKey = GlobalKey<FormState>();
 
   bool isLoading = false;
-
   bool googleSignIn = false;
-
   bool isMobile = false;
-
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +53,6 @@ class _LoginState extends State<Login> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
 
               Container(
               //  color: Colors.grey,
@@ -81,7 +77,6 @@ class _LoginState extends State<Login> {
                 controller: _email,
               ),
               SizedBox(height: 15,),
-
 
               TextFormField(
                 decoration: InputDecoration(
@@ -302,12 +297,8 @@ class _LoginState extends State<Login> {
 }
 
 
-
-
 class otpVerifyPage extends StatefulWidget {
-
   final String phone;
-
   const otpVerifyPage({Key key, this.phone}) : super(key: key);
   @override
   _otpVerifyPageState createState() => _otpVerifyPageState();
@@ -321,7 +312,6 @@ class _otpVerifyPageState extends State<otpVerifyPage> {
     super.initState();
     _verifyPhone();
   }
-
 
   _verifyPhone() async {
 
